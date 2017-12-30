@@ -1,0 +1,11 @@
+{
+    "terminal.integrated.env.linux": {
+        "PATH": "/home/davca/.platformio/penv/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
+    },
+    "files.associations": {
+        "main.h": "c",
+        "stm32l1xx_hal.h": "c",
+        "tim.h": "c",
+        "stm32l1xx_hal_conf.h": "c"
+    }
+}
