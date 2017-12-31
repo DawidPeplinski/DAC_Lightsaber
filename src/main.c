@@ -50,6 +50,10 @@
 #include "hit2_samples.h"
 #include "hit3_samples.h"
 #include "hit4_samples.h"
+#include "hit5_samples.h"
+#include "hit6_samples.h"
+#include "hit7_samples.h"
+#include "hit8_samples.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -62,7 +66,12 @@
 #define HIT2_PATTERN          3
 #define HIT3_PATTERN          4
 #define HIT4_PATTERN          5
-#define POWER_DOWN_PATTERN    6
+#define HIT5_PATTERN          6
+#define HIT6_PATTERN          7
+#define HIT7_PATTERN          8
+#define HIT8_PATTERN          9
+#define LAST_HIT_NUMBER       HIT8_PATTERN
+#define POWER_DOWN_PATTERN    10
 
 volatile uint8_t    sound_pattern;
 volatile uint32_t   samples_count;
@@ -93,6 +102,10 @@ void set_sound_pattern(uint8_t val)
     case HIT2_PATTERN: samples_count = sizeof(hit2_samples); break;
     case HIT3_PATTERN: samples_count = sizeof(hit3_samples); break;
     case HIT4_PATTERN: samples_count = sizeof(hit4_samples); break;
+    case HIT5_PATTERN: samples_count = sizeof(hit5_samples); break;
+    case HIT6_PATTERN: samples_count = sizeof(hit6_samples); break;
+    case HIT7_PATTERN: samples_count = sizeof(hit7_samples); break;
+    case HIT8_PATTERN: samples_count = sizeof(hit8_samples); break;
     case POWER_DOWN_PATTERN: samples_count = sizeof(power_down_samples); break;
   }
   current_count = 0;
@@ -101,8 +114,8 @@ void set_sound_pattern(uint8_t val)
 
 uint8_t get_hit_pattern(void)
 {
-  hit_pattern++;
-  if(hit_pattern < HIT1_PATTERN || hit_pattern > HIT4_PATTERN) 
+  hit_pattern++;                                                            // TODO: generate random hit pattern
+  if(hit_pattern < HIT1_PATTERN || hit_pattern > LAST_HIT_NUMBER) 
   {
     hit_pattern = HIT1_PATTERN;
   }
@@ -120,13 +133,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
           HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, power_up_samples[current_count]);
           if(++current_count >= samples_count) set_sound_pattern(IDLE_PATTERN);
         } break;
-
         case IDLE_PATTERN: 
         {
           HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, idle_samples[current_count]);
           if(++current_count >= samples_count) current_count = 0;     // looping the idle mode
         } break;
-
         case HIT1_PATTERN:
         {
           HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, hit1_samples[current_count]);
@@ -147,6 +158,26 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
           HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, hit4_samples[current_count]);
           if(++current_count >= samples_count) set_sound_pattern(IDLE_PATTERN);
         } break;
+        case HIT5_PATTERN:
+        {
+          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, hit5_samples[current_count]);
+          if(++current_count >= samples_count) set_sound_pattern(IDLE_PATTERN);
+        } break;
+        case HIT6_PATTERN:
+        {
+          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, hit6_samples[current_count]);
+          if(++current_count >= samples_count) set_sound_pattern(IDLE_PATTERN);
+        } break;  
+        case HIT7_PATTERN:
+        {
+          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, hit7_samples[current_count]);
+          if(++current_count >= samples_count) set_sound_pattern(IDLE_PATTERN);
+        } break;  
+        case HIT8_PATTERN:
+        {
+          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, hit8_samples[current_count]);
+          if(++current_count >= samples_count) set_sound_pattern(IDLE_PATTERN);
+        } break;                                
         case POWER_DOWN_PATTERN:
         {
           HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, power_down_samples[current_count]);
