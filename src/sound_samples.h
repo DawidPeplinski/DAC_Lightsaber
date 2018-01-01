@@ -13,6 +13,20 @@
 #include "hit7_samples.h"
 #include "hit8_samples.h"
 
+#define POWER_UP_PATTERN      0
+#define IDLE_PATTERN          1
+#define HIT1_PATTERN          2
+#define HIT2_PATTERN          3
+#define HIT3_PATTERN          4
+#define HIT4_PATTERN          5
+#define HIT5_PATTERN          6
+#define HIT6_PATTERN          7
+#define HIT7_PATTERN          8
+#define HIT8_PATTERN          9
+#define LAST_HIT_NUMBER       HIT8_PATTERN
+#define POWER_DOWN_PATTERN    10
+
+
 typedef struct samples_data_struct {
   const uint8_t        *array_ptr;
   uint32_t              array_size;  

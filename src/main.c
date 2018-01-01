@@ -50,19 +50,6 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-#define POWER_UP_PATTERN      0
-#define IDLE_PATTERN          1
-#define HIT1_PATTERN          2
-#define HIT2_PATTERN          3
-#define HIT3_PATTERN          4
-#define HIT4_PATTERN          5
-#define HIT5_PATTERN          6
-#define HIT6_PATTERN          7
-#define HIT7_PATTERN          8
-#define HIT8_PATTERN          9
-#define LAST_HIT_NUMBER       HIT8_PATTERN
-#define POWER_DOWN_PATTERN    10
-
 volatile uint8_t    current_sound_pattern;
 volatile uint32_t   total_samples_count;
 volatile uint32_t   current_samples_count;
@@ -92,7 +79,14 @@ void set_current_sound_pattern(uint8_t val)
 
 uint8_t get_hit_pattern(void)
 {
-  return (random_byte % (LAST_HIT_NUMBER - HIT1_PATTERN + 1)) + HIT1_PATTERN;
+  // hit_pattern++;
+  // if(hit_pattern < HIT1_PATTERN || hit_pattern > LAST_HIT_NUMBER) 
+  // {
+  //   hit_pattern = HIT1_PATTERN;
+  // }
+  // return hit_pattern;
+
+  return (random_byte % (LAST_HIT_NUMBER - HIT1_PATTERN + 1)) + HIT1_PATTERN;    // random hit pattern
 }
 
 void set_dac_on_timer_event(const uint8_t *samples_buffer, uint8_t if_end_with_idle)
