@@ -13,6 +13,8 @@
 #include "hit7_samples.h"
 #include "hit8_samples.h"
 
+#define USE_EMPTY_SAMPLES_ARRAYS
+
 #define POWER_UP_PATTERN      0
 #define IDLE_PATTERN          1
 #define HIT1_PATTERN          2
@@ -87,6 +89,33 @@ samples_data_struct power_down_struct = {
     .array_size = sizeof(power_down_samples)
 };
 
+
+#ifdef USE_EMPTY_SAMPLES_ARRAYS
+const uint8_t empty_samples_array[] = {
+    0,
+    0,
+    0
+};
+
+samples_data_struct empty_samples_struct = {
+    .array_ptr = empty_samples_array,
+    .array_size = sizeof(empty_samples_array)
+};
+
+samples_data_struct *sound_structs_array[] = {
+    &hit5_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &hit6_struct
+};
+ #else
 samples_data_struct *sound_structs_array[] = {
     &power_up_struct,
     &idle_struct,
@@ -100,5 +129,6 @@ samples_data_struct *sound_structs_array[] = {
     &hit8_struct,
     &power_down_struct
 };
+#endif
 
 #endif
