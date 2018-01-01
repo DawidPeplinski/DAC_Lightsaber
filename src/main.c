@@ -9,7 +9,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -89,14 +89,33 @@ uint8_t get_hit_pattern(void)
   return (random_byte % (LAST_HIT_NUMBER - HIT1_PATTERN + 1)) + HIT1_PATTERN;    // random hit pattern
 }
 
-void set_dac_on_timer_event(const uint8_t *samples_buffer, uint8_t if_end_with_idle)
+void power_up_saber(void)
 {
-  HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, samples_buffer[current_samples_count]);
-  random_byte = current_samples_count & 0xFF;
-  if(++current_samples_count >= total_samples_count) 
+  HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, sound_structs_array[POWER_UP_PATTERN]->array_ptr[current_samples_count]);
+  // random_byte = current_samples_count & 0xFF;        random byte not needed while powering up/down for now
+  TIM3->CCR1 = (TIM3->CCR1 >= 255) ? 255 : (current_samples_count >> 6) & 0xFF;
+  if(current_samples_count > (total_samples_count >> 1)) 
   {
-    if(if_end_with_idle) set_current_sound_pattern(IDLE_PATTERN);
-    else HAL_TIM_Base_Stop_IT(&htim10);
+    TIM3->CCR1 = 255;
+    if_saber_turned_on_flag = 1;
+  }
+  if(++current_samples_count >= total_samples_count)
+  {
+    set_current_sound_pattern(IDLE_PATTERN);
+    // if_saber_turned_on_flag = 1;
+  }
+}
+
+void power_down_saber(void)
+{
+  if_saber_turned_on_flag = 0;
+  HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, sound_structs_array[POWER_DOWN_PATTERN]->array_ptr[current_samples_count]);
+  // random_byte = current_samples_count & 0xFF;
+  TIM3->CCR1 = (TIM3->CCR1 == 0) ? 0 : 255 - ((current_samples_count >> 6) & 0xFF);
+  if(++current_samples_count >= total_samples_count)
+  {
+    HAL_TIM_Base_Stop_IT(&htim10);
+    TIM3->CCR1 = 0;
   }
 }
 
@@ -104,8 +123,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if(htim->Instance == TIM10)
   {
-    if(current_sound_pattern == POWER_DOWN_PATTERN) set_dac_on_timer_event(sound_structs_array[POWER_DOWN_PATTERN]->array_ptr, 0);
-    else set_dac_on_timer_event(sound_structs_array[current_sound_pattern]->array_ptr, 1);
+    if(current_sound_pattern == POWER_UP_PATTERN) power_up_saber();
+    else if(current_sound_pattern == POWER_DOWN_PATTERN) power_down_saber();
+    else 
+    {
+        HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, sound_structs_array[current_sound_pattern]->array_ptr[current_samples_count]);
+        random_byte = current_samples_count & 0xFF;
+        if(++current_samples_count >= total_samples_count) set_current_sound_pattern(IDLE_PATTERN);
+    }
   }
 }
 
@@ -127,7 +152,6 @@ void button_pushed(void)
         if(button_counter > 750)
         {
           set_current_sound_pattern((if_saber_turned_on_flag) ? POWER_DOWN_PATTERN : POWER_UP_PATTERN);
-          if_saber_turned_on_flag = !if_saber_turned_on_flag;
           break;
         }
       }
@@ -165,10 +189,13 @@ int main(void)
   MX_GPIO_Init();
   MX_DAC_Init();
   MX_TIM10_Init();
+  MX_TIM3_Init();
 
   /* USER CODE BEGIN 2 */
   HAL_DAC_Start(&hdac, DAC1_CHANNEL_1);
   HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, 0);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  TIM3->CCR1 = 0;                             // TIM capture/compare register for PWM generating
   hit_pattern = 0;
   button_pushed_flag = 0;
   if_saber_turned_on_flag = 0;

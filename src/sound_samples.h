@@ -103,7 +103,7 @@ samples_data_struct empty_samples_struct = {
 };
 
 samples_data_struct *sound_structs_array[] = {
-    &hit5_struct,
+    &power_up_struct,
     &empty_samples_struct,
     &empty_samples_struct,
     &empty_samples_struct,
@@ -113,7 +113,7 @@ samples_data_struct *sound_structs_array[] = {
     &empty_samples_struct,
     &empty_samples_struct,
     &empty_samples_struct,
-    &hit6_struct
+    &power_down_struct
 };
  #else
 samples_data_struct *sound_structs_array[] = {

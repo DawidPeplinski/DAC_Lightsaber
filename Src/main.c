@@ -9,7 +9,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,30 +43,20 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#include "idle_samples.h"
-#include "power_up_samples.h"
-#include "power_down_samples.h"
-#include "hit1_samples.h"
-#include "hit2_samples.h"
-#include "hit3_samples.h"
-#include "hit4_samples.h"
+#include "sound_samples.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-#define POWER_UP_PATTERN      0
-#define IDLE_PATTERN          1
-#define HIT1_PATTERN          2
-#define HIT2_PATTERN          3
-#define HIT3_PATTERN          4
-#define HIT4_PATTERN          5
-#define POWER_DOWN_PATTERN    6
-
-volatile uint8_t sound_pattern;
-volatile uint32_t samples_count;
-volatile uint32_t current_count;
+volatile uint8_t    current_sound_pattern;
+volatile uint32_t   total_samples_count;
+volatile uint32_t   current_samples_count;
+volatile uint8_t    button_pushed_flag;
+volatile uint8_t    random_byte;
+uint8_t             hit_pattern;
+uint8_t             if_saber_turned_on_flag;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -78,77 +68,78 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-void set_sound_pattern(uint8_t val)
+void set_current_sound_pattern(uint8_t val)
 {
   HAL_TIM_Base_Stop_IT(&htim10);
-  sound_pattern = val;
-  switch(val)
-  {
-    case POWER_UP_PATTERN: samples_count = sizeof(power_up_samples); break;
-    case IDLE_PATTERN: samples_count = sizeof(idle_samples); break;
-    case HIT1_PATTERN: samples_count = sizeof(hit1_samples); break;
-    case HIT2_PATTERN: samples_count = sizeof(hit2_samples); break;
-    case HIT3_PATTERN: samples_count = sizeof(hit3_samples); break;
-    case HIT4_PATTERN: samples_count = sizeof(hit4_samples); break;
-    case POWER_DOWN_PATTERN: samples_count = sizeof(power_down_samples); break;
-  }
-  current_count = 0;
+  current_sound_pattern = val;
+  total_samples_count = sound_structs_array[val]->array_size;
+  current_samples_count = 0;
   HAL_TIM_Base_Start_IT(&htim10);
+}
+
+uint8_t get_hit_pattern(void)
+{
+  // hit_pattern++;
+  // if(hit_pattern < HIT1_PATTERN || hit_pattern > LAST_HIT_NUMBER) 
+  // {
+  //   hit_pattern = HIT1_PATTERN;
+  // }
+  // return hit_pattern;
+
+  return (random_byte % (LAST_HIT_NUMBER - HIT1_PATTERN + 1)) + HIT1_PATTERN;    // random hit pattern
+}
+
+void set_dac_on_timer_event(const uint8_t *samples_buffer, uint8_t if_end_with_idle)
+{
+  HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, samples_buffer[current_samples_count]);
+  random_byte = current_samples_count & 0xFF;
+  if(++current_samples_count >= total_samples_count) 
+  {
+    if(if_end_with_idle) set_current_sound_pattern(IDLE_PATTERN);
+    else HAL_TIM_Base_Stop_IT(&htim10);
+  }
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if(htim->Instance == TIM10)
   {
-      switch(sound_pattern)
-      {
-        case POWER_UP_PATTERN: 
-        {
-          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, power_up_samples[current_count]);
-          if(++current_count >= samples_count) set_sound_pattern(IDLE_PATTERN);
-        } break;
-
-        case IDLE_PATTERN: 
-        {
-          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, idle_samples[current_count]);
-          if(++current_count >= samples_count) current_count = 0;     // looping the idle mode
-        } break;
-
-        case HIT1_PATTERN:
-        {
-          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, hit1_samples[current_count]);
-          if(++current_count >= samples_count) set_sound_pattern(IDLE_PATTERN);
-        } break;
-        case HIT2_PATTERN:
-        {
-          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, hit2_samples[current_count]);
-          if(++current_count >= samples_count) set_sound_pattern(IDLE_PATTERN);
-        } break;
-        case HIT3_PATTERN:
-        {
-          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, hit3_samples[current_count]);
-          if(++current_count >= samples_count) set_sound_pattern(IDLE_PATTERN);
-        } break;
-        case HIT4_PATTERN:
-        {
-          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, hit4_samples[current_count]);
-          if(++current_count >= samples_count) set_sound_pattern(IDLE_PATTERN);
-        } break;
-        case POWER_DOWN_PATTERN:
-        {
-          HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, power_down_samples[current_count]);
-          if(++current_count >= samples_count) HAL_TIM_Base_Stop_IT(&htim10);
-        } break;
-      }
+    if(current_sound_pattern == POWER_DOWN_PATTERN) set_dac_on_timer_event(sound_structs_array[POWER_DOWN_PATTERN]->array_ptr, 0);
+    else set_dac_on_timer_event(sound_structs_array[current_sound_pattern]->array_ptr, 1);
   }
 }
 
+uint8_t pwm_val = 0;
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin == GPIO_PIN_13)
   {
-    set_sound_pattern(HIT3_PATTERN);
+    TIM3->CCR1 = pwm_val;
+    pwm_val += 10;
+    button_pushed_flag = 1;
   }
+}
+
+void button_pushed(void)
+{
+  if(button_pushed_flag)
+    {
+      HAL_Delay(15);                // debouncing the button
+      uint16_t button_counter = 0;
+      while(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))
+      {
+        HAL_Delay(1);
+        button_counter++;
+        if(button_counter > 750)
+        {
+          set_current_sound_pattern((if_saber_turned_on_flag) ? POWER_DOWN_PATTERN : POWER_UP_PATTERN);
+          if_saber_turned_on_flag = !if_saber_turned_on_flag;
+          break;
+        }
+      }
+      if(button_counter <= 750 && if_saber_turned_on_flag) set_current_sound_pattern(get_hit_pattern());
+      button_pushed_flag = 0;
+    }
 }
 
 /* USER CODE END 0 */
@@ -180,22 +171,29 @@ int main(void)
   MX_GPIO_Init();
   MX_DAC_Init();
   MX_TIM10_Init();
+  MX_TIM3_Init();
 
   /* USER CODE BEGIN 2 */
   HAL_DAC_Start(&hdac, DAC1_CHANNEL_1);
   HAL_DAC_SetValue(&hdac, DAC1_CHANNEL_1, DAC_ALIGN_8B_R, 0);
-  set_sound_pattern(POWER_UP_PATTERN);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  TIM3->CCR1 = 0;
+  hit_pattern = 0;
+  button_pushed_flag = 0;
+  if_saber_turned_on_flag = 0;
+  random_byte = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-  {
+  { 
+    button_pushed();
+  }
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
 
-  }
   /* USER CODE END 3 */
 
 }
