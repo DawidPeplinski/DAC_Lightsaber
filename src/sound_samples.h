@@ -13,7 +13,7 @@
 #include "hit7_samples.h"
 #include "hit8_samples.h"
 
-#define USE_EMPTY_SAMPLES_ARRAYS
+// #define USE_EMPTY_SAMPLES_ARRAYS
 
 #define POWER_UP_PATTERN      0
 #define IDLE_PATTERN          1
