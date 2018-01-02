@@ -43,7 +43,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#include "sound_samples.h"
+#include "my_files/sound_samples.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -136,7 +136,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  if(GPIO_Pin == GPIO_PIN_13) button_pushed_flag = 1;
+  if(GPIO_Pin == GPIO_PIN_13 || GPIO_Pin == SIGNALQUEST_Pin) button_pushed_flag = 1;
 }
 
 void button_pushed(void)
@@ -155,7 +155,9 @@ void button_pushed(void)
           break;
         }
       }
-      if(button_counter <= 750 && if_saber_turned_on_flag) set_current_sound_pattern(get_hit_pattern());
+      if(button_counter <= 750 && if_saber_turned_on_flag && (current_sound_pattern == IDLE_PATTERN || current_sound_pattern == POWER_UP_PATTERN
+                               || (current_sound_pattern >= HIT1_PATTERN && current_sound_pattern <= LAST_HIT_NUMBER 
+                               && current_samples_count > (total_samples_count >> 2)))) set_current_sound_pattern(get_hit_pattern());
       button_pushed_flag = 0;
     }
 }

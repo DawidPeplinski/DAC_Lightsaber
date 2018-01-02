@@ -46,6 +46,9 @@
 
 /* Private define ------------------------------------------------------------*/
 
+#define SIGNALQUEST_Pin GPIO_PIN_1
+#define SIGNALQUEST_GPIO_Port GPIOA
+#define SIGNALQUEST_EXTI_IRQn EXTI1_IRQn
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
