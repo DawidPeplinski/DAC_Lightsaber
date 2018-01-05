@@ -75,7 +75,7 @@ void SystemClock_Config(void);
 void print_string(char *data)
 {
   char buf[256] = { 0 };
-  sprintf(&buf[0], "%s\r\n", data);
+  sprintf(&buf[0], "%s%s\r\n", "\033[3J", data); // first string 'clears the scrollbar' in putty
   HAL_UART_Transmit(&huart2, (uint8_t *)&buf[0], sizeof(buf), 100);
 }
 
@@ -215,19 +215,33 @@ int main(void)
   if_saber_turned_on_flag = 0;
   random_byte = 0;
   print_string("Lightsaber started..");
+
+  uint8_t reg_settings = 0b00000011;    // setting CTRL_REG1 to 680ms !160ms meas delay, Fast Read Mode and Active Mode
+  HAL_I2C_Mem_Write(&hi2c1, MMA845_ADDR, 0x2a, 1, &reg_settings, 1, 100);
   
-  uint8_t data_buf = 0;
-  HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x0D, 1, &data_buf, 1, 100);
-  
+  // reg_settings = 0b00011100;
+  // HAL_I2C_Mem_Write(&hi2c1, MMA845_ADDR, 0x2b, 1, &reg_settings, 1, 100);
+
   char text[255] = { 0 };
-  sprintf(&text[0], "Read data: %d", data_buf);
-  print_string(text);
+  uint8_t data_buf[3] = { 0 };
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   { 
+    while(!(data_buf[0] & (1<<3)))  // checking ZYXDR bit inF_MODE register
+    {
+      HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x00, 1, &data_buf[0], 1, 100);
+    }
+    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x01, 1, &data_buf[0], 1, 100); // X
+    HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x03, 1, &data_buf[1], 1, 100); // Y
+    HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x05, 1, &data_buf[2], 1, 100); // Z
+
+    sprintf(&text[0], "X: %d\r\nY: %d\r\nZ: %d\r\n", (int8_t)data_buf[0], (int8_t)data_buf[1], (int8_t)data_buf[2]);
+    HAL_UART_Transmit(&huart2, (uint8_t *)&text[0], sizeof(text), 100);
+    data_buf[0] = 0;
     button_pushed();
   }
   /* USER CODE END WHILE */
