@@ -46,6 +46,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "my_files/sound_samples.h"
+#include "my_files/accelerometer.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -71,11 +72,11 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN 0 */
 
-void print_string(uint8_t *data)
+void print_string(char *data)
 {
-  uint8_t buf[256] = { 0 };
+  char buf[256] = { 0 };
   sprintf(&buf[0], "%s\r\n", data);
-  HAL_UART_Transmit(&huart2, &buf[0], sizeof(buf), 100);
+  HAL_UART_Transmit(&huart2, (uint8_t *)&buf[0], sizeof(buf), 100);
 }
 
 void set_current_sound_pattern(uint8_t val)
@@ -95,7 +96,6 @@ uint8_t get_hit_pattern(void)
   //   hit_pattern = HIT1_PATTERN;
   // }
   // return hit_pattern;
-
   return (random_byte % (LAST_HIT_NUMBER - HIT1_PATTERN + 1)) + HIT1_PATTERN;    // random hit pattern
 }
 
@@ -215,6 +215,13 @@ int main(void)
   if_saber_turned_on_flag = 0;
   random_byte = 0;
   print_string("Lightsaber started..");
+  
+  uint8_t data_buf = 0;
+  HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x0D, 1, &data_buf, 1, 100);
+  
+  char text[255] = { 0 };
+  sprintf(&text[0], "Read data: %d", data_buf);
+  print_string(text);
   /* USER CODE END 2 */
 
   /* Infinite loop */
