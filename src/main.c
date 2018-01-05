@@ -39,7 +39,9 @@
 #include "main.h"
 #include "stm32l1xx_hal.h"
 #include "dac.h"
+#include "i2c.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
@@ -68,6 +70,14 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+
+void print_string(uint8_t *data)
+{
+  uint8_t buf[256] = { 0 };
+  sprintf(&buf[0], "%s\r\n", data);
+  HAL_UART_Transmit(&huart2, &buf[0], sizeof(buf), 100);
+}
+
 void set_current_sound_pattern(uint8_t val)
 {
   HAL_TIM_Base_Stop_IT(&htim10);
@@ -85,7 +95,6 @@ uint8_t get_hit_pattern(void)
   //   hit_pattern = HIT1_PATTERN;
   // }
   // return hit_pattern;
-
   return (random_byte % (LAST_HIT_NUMBER - HIT1_PATTERN + 1)) + HIT1_PATTERN;    // random hit pattern
 }
 
@@ -192,6 +201,8 @@ int main(void)
   MX_DAC_Init();
   MX_TIM10_Init();
   MX_TIM3_Init();
+  MX_USART2_UART_Init();
+  MX_I2C1_Init();
 
   /* USER CODE BEGIN 2 */
   HAL_DAC_Start(&hdac, DAC1_CHANNEL_1);
@@ -202,6 +213,7 @@ int main(void)
   button_pushed_flag = 0;
   if_saber_turned_on_flag = 0;
   random_byte = 0;
+  print_string("Lightsaber started..");
   /* USER CODE END 2 */
 
   /* Infinite loop */
