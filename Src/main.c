@@ -46,7 +46,7 @@
 #include <math.h>
 
 /* USER CODE BEGIN Includes */
-#include "../my_files/sound_samples.h"
+#include "../my_files/sound_samples/sound_samples.h"
 #include "../my_files/accelerometer.h"
 /* USER CODE END Includes */
 
