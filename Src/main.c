@@ -43,10 +43,11 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include <math.h>
 
 /* USER CODE BEGIN Includes */
-#include "my_files/sound_samples.h"
-#include "my_files/accelerometer.h"
+#include "../my_files/sound_samples.h"
+#include "../my_files/accelerometer.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -75,7 +76,7 @@ void SystemClock_Config(void);
 void print_string(char *data)
 {
   char buf[256] = { 0 };
-  sprintf(&buf[0], "%s\r\n", data);
+  sprintf(&buf[0], "%s%s\r\n", "\033[3J", data); // first string 'clears the scrollbar' in putty
   HAL_UART_Transmit(&huart2, (uint8_t *)&buf[0], sizeof(buf), 100);
 }
 
@@ -155,21 +156,39 @@ void button_pushed(void)
     {
       HAL_Delay(15);                // debouncing the button
       uint16_t button_counter = 0;
-      while(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))
+      while(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))    // checking if user is pushing the button to turn on/off the saber, or if this is a hit generated with button (just for develop)
       {
         HAL_Delay(1);
         button_counter++;
         if(button_counter > 750)
         {
-          set_current_sound_pattern((if_saber_turned_on_flag) ? POWER_DOWN_PATTERN : POWER_UP_PATTERN);
+          set_current_sound_pattern((if_saber_turned_on_flag) ? POWER_DOWN_PATTERN : POWER_UP_PATTERN); // button is hold long time, so the saber is switched on/off
           break;
         }
       }
       if(button_counter <= 750 && if_saber_turned_on_flag && (current_sound_pattern == IDLE_PATTERN || current_sound_pattern == POWER_UP_PATTERN
                                || (current_sound_pattern >= HIT1_PATTERN && current_sound_pattern <= LAST_HIT_NUMBER 
-                               && current_samples_count > (total_samples_count >> 2)))) set_current_sound_pattern(get_hit_pattern());
+                               && current_samples_count > (total_samples_count >> 2)))) set_current_sound_pattern(get_hit_pattern()); // button was hold short time, so the hit is generated
       button_pushed_flag = 0;
     }
+}
+
+void accelerometer_handling(void)
+{
+  char text[255] = { 0 };
+  uint8_t data_buf[3] = { 0 };
+  while(!(data_buf[0] & (1<<3)))  // checking ZYXDR bit in F_MODE register
+  {
+    HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x00, 1, &data_buf[0], 1, 100);
+  }
+  HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x01, 1, &data_buf[0], 1, 100); // X
+  HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x03, 1, &data_buf[1], 1, 100); // Y
+  HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x05, 1, &data_buf[2], 1, 100); // Z
+  float vector = sqrtf((int8_t)data_buf[0]*(int8_t)data_buf[0] + (int8_t)data_buf[1]*(int8_t)data_buf[1] + (int8_t)data_buf[2]*(int8_t)data_buf[2]);
+  sprintf(&text[0], "%sX: %d\r\nY: %d\r\nZ: %d\r\nVec: %f\r\n", "\033[3J", (int8_t)data_buf[0], (int8_t)data_buf[1], (int8_t)data_buf[2], vector);
+  HAL_UART_Transmit(&huart2, (uint8_t *)&text[0], sizeof(text), 100);
+  data_buf[0] = 0;
+  if(vector > 100) button_pushed_flag = 1;
 }
 
 /* USER CODE END 0 */
@@ -215,19 +234,21 @@ int main(void)
   if_saber_turned_on_flag = 0;
   random_byte = 0;
   print_string("Lightsaber started..");
+
+  uint8_t reg_settings = 0b00000011;    // setting CTRL_REG1 to 680ms !160ms meas delay, Fast Read Mode and Active Mode
+  HAL_I2C_Mem_Write(&hi2c1, MMA845_ADDR, 0x2a, 1, &reg_settings, 1, 100);
   
-  uint8_t data_buf = 0;
-  HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x0D, 1, &data_buf, 1, 100);
-  
-  char text[255] = { 0 };
-  sprintf(&text[0], "Read data: %d", data_buf);
-  print_string(text);
+  // reg_settings = 0b00011100;
+  // HAL_I2C_Mem_Write(&hi2c1, MMA845_ADDR, 0x2b, 1, &reg_settings, 1, 100);
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   { 
+    accelerometer_handling();
     button_pushed();
   }
   /* USER CODE END WHILE */

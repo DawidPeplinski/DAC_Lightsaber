@@ -6,6 +6,7 @@
         "main.h": "c",
         "stm32l1xx_hal.h": "c",
         "tim.h": "c",
-        "stm32l1xx_hal_conf.h": "c"
+        "stm32l1xx_hal_conf.h": "c",
+        "sound_samples.h": "c"
     }
 }

@@ -4,3 +4,13 @@ LibFiles=Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_dac.h;Drivers/STM32L1xx_
 []
 SourceFiles=;null;
 
+[PreviousGenFiles]
+HeaderPath=/home/davca/workspace/Makefile_ligthsaber/dac_lightsaber/Inc
+HeaderFiles=gpio.h;dac.h;i2c.h;tim.h;usart.h;stm32l1xx_it.h;stm32l1xx_hal_conf.h;main.h;
+SourcePath=/home/davca/workspace/Makefile_ligthsaber/dac_lightsaber/Src
+SourceFiles=gpio.h;dac.h;i2c.h;tim.h;usart.h;stm32l1xx_it.h;stm32l1xx_hal_conf.h;main.h;gpio.c;dac.c;i2c.c;tim.c;usart.c;stm32l1xx_it.c;stm32l1xx_hal_msp.c;main.c;
+
+[PreviousUsedMakefileFiles]
+SourceFiles=Src/main.c;Src/gpio.c;Src/dac.c;Src/i2c.c;Src/tim.c;Src/usart.c;Src/stm32l1xx_it.c;Src/stm32l1xx_hal_msp.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dac.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dac_ex.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_i2c.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_tim_ex.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c;Drivers/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c;Drivers/CMSIS/Device/ST/STM32L1xx/Source/Templates/system_stm32l1xx.c;Drivers/CMSIS/Device/ST/STM32L1xx/Source/Templates/gcc/startup_stm32l152xe.s;
+HeaderPath=Drivers/STM32L1xx_HAL_Driver/Inc;Drivers/STM32L1xx_HAL_Driver/Inc/Legacy;Drivers/CMSIS/Device/ST/STM32L1xx/Include;Drivers/CMSIS/Include;
+
