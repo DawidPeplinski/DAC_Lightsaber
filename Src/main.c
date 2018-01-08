@@ -60,6 +60,7 @@ volatile uint32_t   current_samples_count;
 volatile uint8_t    button_pushed_flag;
 volatile uint8_t    random_byte;
 uint8_t             hit_pattern;
+uint8_t             swing_pattern;
 uint8_t             if_saber_turned_on_flag;
 /* USER CODE END PV */
 
@@ -92,12 +93,33 @@ void set_current_sound_pattern(uint8_t val)
 uint8_t get_hit_pattern(void)
 {
   // hit_pattern++;
-  // if(hit_pattern < HIT1_PATTERN || hit_pattern > LAST_HIT_NUMBER) 
+  // if(hit_pattern < HIT1_PATTERN || hit_pattern > LAST_HIT_PATTERN) 
   // {
   //   hit_pattern = HIT1_PATTERN;
   // }
   // return hit_pattern;
-  return (random_byte % (LAST_HIT_NUMBER - HIT1_PATTERN + 1)) + HIT1_PATTERN;    // random hit pattern
+  return (random_byte % (LAST_HIT_PATTERN - HIT1_PATTERN + 1)) + HIT1_PATTERN;    // random hit pattern
+}
+
+uint8_t get_swing_pattern(void)
+{
+  swing_pattern++;
+  if(swing_pattern < SWING1_PATTERN || swing_pattern > LAST_SWING_PATTERN) 
+  {
+    swing_pattern = SWING1_PATTERN;
+  }
+  return swing_pattern;
+  // return (random_byte % (LAST_SWING_PATTERN - SWING1_PATTERN + 1)) + SWING1_PATTERN;    // random hit pattern
+}
+
+uint8_t is_hit_pattern(void)
+{
+  return (current_sound_pattern >= HIT1_PATTERN && current_sound_pattern <= LAST_HIT_PATTERN) ? 1 : 0;
+}
+
+uint8_t is_swing_pattern(void)
+{
+  return (current_sound_pattern >= SWING1_PATTERN && current_sound_pattern <= LAST_SWING_PATTERN) ? 1 : 0;
 }
 
 void power_up_saber(void)
@@ -166,16 +188,15 @@ void button_pushed(void)
           break;
         }
       }
-      if(button_counter <= 750 && if_saber_turned_on_flag && (current_sound_pattern == IDLE_PATTERN || current_sound_pattern == POWER_UP_PATTERN
-                               || (current_sound_pattern >= HIT1_PATTERN && current_sound_pattern <= LAST_HIT_NUMBER 
-                               && current_samples_count > (total_samples_count >> 2)))) set_current_sound_pattern(get_hit_pattern()); // button was hold short time, so the hit is generated
+      if(button_counter <= 750 && if_saber_turned_on_flag &&        // preventing too many hits at the same moment
+        (!is_hit_pattern() || current_samples_count > (total_samples_count >> 2))) set_current_sound_pattern(get_hit_pattern()); // button was hold short time, so the hit is generated
       button_pushed_flag = 0;
     }
 }
 
 void accelerometer_handling(void)
 {
-  char text[255] = { 0 };
+  // char text[255] = { 0 };
   uint8_t data_buf[3] = { 0 };
   while(!(data_buf[0] & (1<<3)))  // checking ZYXDR bit in F_MODE register
   {
@@ -185,10 +206,10 @@ void accelerometer_handling(void)
   HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x03, 1, &data_buf[1], 1, 100); // Y
   HAL_I2C_Mem_Read(&hi2c1, MMA845_ADDR, 0x05, 1, &data_buf[2], 1, 100); // Z
   float vector = sqrtf((int8_t)data_buf[0]*(int8_t)data_buf[0] + (int8_t)data_buf[1]*(int8_t)data_buf[1] + (int8_t)data_buf[2]*(int8_t)data_buf[2]);
-  sprintf(&text[0], "%sX: %d\r\nY: %d\r\nZ: %d\r\nVec: %f\r\n", "\033[3J", (int8_t)data_buf[0], (int8_t)data_buf[1], (int8_t)data_buf[2], vector);
-  HAL_UART_Transmit(&huart2, (uint8_t *)&text[0], sizeof(text), 100);
-  data_buf[0] = 0;
-  if(vector > 100) button_pushed_flag = 1;
+  // sprintf(&text[0], "%sX: %d\r\nY: %d\r\nZ: %d\r\nVec: %f\r\n", "\033[3J", (int8_t)data_buf[0], (int8_t)data_buf[1], (int8_t)data_buf[2], vector);
+  // HAL_UART_Transmit(&huart2, (uint8_t *)&text[0], sizeof(text), 100);
+  if(vector > 100 && if_saber_turned_on_flag && !is_hit_pattern()
+                  && (!is_swing_pattern() || current_samples_count > (total_samples_count >> 1))) set_current_sound_pattern(get_swing_pattern());
 }
 
 /* USER CODE END 0 */
@@ -230,6 +251,7 @@ int main(void)
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   TIM3->CCR1 = 0;                             // TIM capture/compare register for PWM generating
   hit_pattern = 0;
+  swing_pattern = 0;
   button_pushed_flag = 0;
   if_saber_turned_on_flag = 0;
   random_byte = 0;

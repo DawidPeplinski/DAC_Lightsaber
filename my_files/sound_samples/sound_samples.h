@@ -12,6 +12,15 @@
 #include "hit6_samples.h"
 #include "hit7_samples.h"
 #include "hit8_samples.h"
+#include "swing1_samples.h"
+#include "swing2_samples.h"
+#include "swing3_samples.h"
+#include "swing4_samples.h"
+#include "swing5_samples.h"
+#include "swing6_samples.h"
+#include "swing7_samples.h"
+#include "swing8_samples.h"
+#include "swing9_samples.h"
 
 // #define USE_EMPTY_SAMPLES_ARRAYS
 
@@ -25,8 +34,18 @@
 #define HIT6_PATTERN          7
 #define HIT7_PATTERN          8
 #define HIT8_PATTERN          9
-#define LAST_HIT_NUMBER       HIT8_PATTERN
-#define POWER_DOWN_PATTERN    10
+#define LAST_HIT_PATTERN      HIT8_PATTERN
+#define SWING1_PATTERN        10
+#define SWING2_PATTERN        11
+#define SWING3_PATTERN        12
+#define SWING4_PATTERN        13
+#define SWING5_PATTERN        14
+#define SWING6_PATTERN        15
+#define SWING7_PATTERN        16
+#define SWING8_PATTERN        17
+#define SWING9_PATTERN        18
+#define LAST_SWING_PATTERN    SWING9_PATTERN
+#define POWER_DOWN_PATTERN    19
 
 
 typedef struct samples_data_struct {
@@ -84,6 +103,51 @@ samples_data_struct hit8_struct = {
     .array_size = sizeof(hit8_samples)
 };
 
+samples_data_struct swing1_struct = {
+    .array_ptr = swing1_samples,
+    .array_size = sizeof(hit8_samples)
+};
+
+samples_data_struct swing2_struct = {
+    .array_ptr = swing2_samples,
+    .array_size = sizeof(hit8_samples)
+};
+
+samples_data_struct swing3_struct = {
+    .array_ptr = swing3_samples,
+    .array_size = sizeof(hit8_samples)
+};
+
+samples_data_struct swing4_struct = {
+    .array_ptr = swing4_samples,
+    .array_size = sizeof(hit8_samples)
+};
+
+samples_data_struct swing5_struct = {
+    .array_ptr = swing5_samples,
+    .array_size = sizeof(hit8_samples)
+};
+
+samples_data_struct swing6_struct = {
+    .array_ptr = swing6_samples,
+    .array_size = sizeof(hit8_samples)
+};
+
+samples_data_struct swing7_struct = {
+    .array_ptr = swing7_samples,
+    .array_size = sizeof(hit8_samples)
+};
+
+samples_data_struct swing8_struct = {
+    .array_ptr = swing8_samples,
+    .array_size = sizeof(hit8_samples)
+};
+
+samples_data_struct swing9_struct = {
+    .array_ptr = swing9_samples,
+    .array_size = sizeof(hit8_samples)
+};
+
 samples_data_struct power_down_struct = {
     .array_ptr = power_down_samples,
     .array_size = sizeof(power_down_samples)
@@ -113,6 +177,15 @@ samples_data_struct *sound_structs_array[] = {
     &empty_samples_struct,
     &empty_samples_struct,
     &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
+    &empty_samples_struct,
     &empty_samples_struct //&power_down_struct
 };
  #else
@@ -127,6 +200,15 @@ samples_data_struct *sound_structs_array[] = {
     &hit6_struct,
     &hit7_struct,
     &hit8_struct,
+    &swing1_struct,
+    &swing2_struct,
+    &swing3_struct,
+    &swing4_struct,
+    &swing5_struct,
+    &swing6_struct,
+    &swing7_struct,
+    &swing8_struct,
+    &swing9_struct,
     &power_down_struct
 };
 #endif
