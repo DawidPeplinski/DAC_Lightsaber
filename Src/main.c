@@ -92,13 +92,13 @@ void set_current_sound_pattern(uint8_t val)
 
 uint8_t get_hit_pattern(void)
 {
-  // hit_pattern++;
-  // if(hit_pattern < HIT1_PATTERN || hit_pattern > LAST_HIT_PATTERN) 
-  // {
-  //   hit_pattern = HIT1_PATTERN;
-  // }
-  // return hit_pattern;
-  return (random_byte % (LAST_HIT_PATTERN - HIT1_PATTERN + 1)) + HIT1_PATTERN;    // random hit pattern
+  hit_pattern++;
+  if(hit_pattern < HIT1_PATTERN || hit_pattern > LAST_HIT_PATTERN) 
+  {
+    hit_pattern = HIT1_PATTERN;
+  }
+  return hit_pattern;
+  // return (random_byte % (LAST_HIT_PATTERN - HIT1_PATTERN + 1)) + HIT1_PATTERN;    // random hit pattern
 }
 
 uint8_t get_swing_pattern(void)
