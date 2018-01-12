@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
  
-inputfile = open("Data.txt")
+inputfile = open("sample-data.txt")
  
 data = []
  
@@ -18,12 +18,13 @@ for line in inputfile:
 
 data[:] += np.abs(np.min(data[:]))
 max_val = np.max(data[:])
-offset = 0
-mul = (255 - offset)/max_val
+mul = 146.25836683 #(255 - offset)/max_val
 data = np.asarray([x * mul for x in data])
 data = np.asarray([np.round(x) for x in data])
+offset = 128 - data[0]
 data[:] += offset
 print(np.max(data))
+print(mul)
 
 outputfile = open('out.txt', 'w')
 for x in data:

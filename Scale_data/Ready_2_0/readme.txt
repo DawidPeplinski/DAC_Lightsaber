@@ -1,0 +1,1 @@
+Every sound file must start with the sample on the 0, because the first sample is taken to count the offset. Multiplier is counted by amplifying the poweron sound. Sounds are created with Classic pattern from http://www.ultrasabers.com/Sound-Font-p/soundfont-manual.htm
