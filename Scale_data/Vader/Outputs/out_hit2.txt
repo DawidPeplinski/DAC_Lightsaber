@@ -1,8 +1,4 @@
-#ifndef __HIT2_SAMPLES
-#define __HIT2_SAMPLES
-
-const uint8_t hit2_samples[] = {
-  128,
+128,
 107,
 85,
 79,
@@ -26446,7 +26442,4 @@ const uint8_t hit2_samples[] = {
 126,
 127,
 128,
-128
-};
-
-#endif
+128,

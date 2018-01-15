@@ -1,7 +1,3 @@
-#ifndef __POWER_DOWN_SAMPLES
-#define __POWER_DOWN_SAMPLES
-
-const uint8_t power_down_samples[] = {
 128,
 124,
 128,
@@ -27940,7 +27936,4 @@ const uint8_t power_down_samples[] = {
 125,
 125,
 125,
-125
-};
-
-#endif
+125,

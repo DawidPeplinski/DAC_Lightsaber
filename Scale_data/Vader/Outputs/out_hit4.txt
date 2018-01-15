@@ -1,7 +1,3 @@
-#ifndef __HIT4_SAMPLES
-#define __HIT4_SAMPLES
-
-const uint8_t hit4_samples[] = {
 128,
 135,
 146,
@@ -15474,7 +15470,4 @@ const uint8_t hit4_samples[] = {
 125,
 125,
 126,
-126
-};
-
-#endif
+126,

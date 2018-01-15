@@ -18,7 +18,7 @@ for line in inputfile:
 
 data[:] += np.abs(np.min(data[:]))
 max_val = np.max(data[:])
-mul = 146.25836683 #(255 - offset)/max_val
+mul = 127.50191252 #(255 - offset)/max_val
 data = np.asarray([x * mul for x in data])
 data = np.asarray([np.round(x) for x in data])
 offset = 128 - data[0]

@@ -31,10 +31,10 @@
 #define HIT3_PATTERN          4
 #define HIT4_PATTERN          5
 #define HIT5_PATTERN          6
-#define HIT6_PATTERN          7
-#define HIT7_PATTERN          8
-#define HIT8_PATTERN          9
-#define LAST_HIT_PATTERN      HIT8_PATTERN
+// #define HIT6_PATTERN          7
+// #define HIT7_PATTERN          8
+// #define HIT8_PATTERN          9
+#define LAST_HIT_PATTERN      HIT5_PATTERN
 #define SWING1_PATTERN        10
 #define SWING2_PATTERN        11
 #define SWING3_PATTERN        12
@@ -154,7 +154,6 @@ samples_data_struct power_down_struct = {
 };
 
 
-#ifdef USE_EMPTY_SAMPLES_ARRAYS
 const uint8_t empty_samples_array[] = {
     0,
     0,
@@ -166,6 +165,7 @@ samples_data_struct empty_samples_struct = {
     .array_size = sizeof(empty_samples_array)
 };
 
+#ifdef USE_EMPTY_SAMPLES_ARRAYS
 samples_data_struct *sound_structs_array[] = {
     &empty_samples_struct, // &power_up_struct,
     &empty_samples_struct,
@@ -197,9 +197,9 @@ samples_data_struct *sound_structs_array[] = {
     &hit3_struct,
     &hit4_struct,
     &hit5_struct,
-    &hit6_struct,
-    &hit7_struct,
-    &hit8_struct,
+    &empty_samples_struct, // &hit6_struct,
+    &empty_samples_struct, // &hit7_struct,
+    &empty_samples_struct, // &hit8_struct,
     &swing1_struct,
     &swing2_struct,
     &swing3_struct,
